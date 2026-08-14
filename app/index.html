@@ -16,7 +16,7 @@
   <div id="app">
     <header class="topbar">
       <div class="brand"><img src="icons/cellendar-icon.png" alt=""><div><strong>Cellendar</strong><span>Excel × Calendar</span></div></div>
-      <div class="actions"><button id="todayBtn" class="icon-btn" aria-label="오늘">오늘</button><button id="syncBtn" class="icon-btn sync" aria-label="동기화"><i id="syncDot"></i>↻</button><button id="accountBtn" class="avatar" aria-label="계정">사람</button></div>
+      <div class="actions"><button id="helpBtn" class="icon-btn help-btn" aria-label="사용 방법">?</button><button id="todayBtn" class="icon-btn" aria-label="오늘">오늘</button><button id="syncBtn" class="icon-btn sync" aria-label="동기화"><i id="syncDot"></i>↻</button><button id="accountBtn" class="avatar" aria-label="계정">사람</button></div>
     </header>
 
     <main>
@@ -28,7 +28,7 @@
 
       <section id="welcomeView" class="welcome hidden">
         <img src="icons/cellendar-icon.png" alt="Cellendar">
-        <h1>엑셀과 휴대폰 캘린더를 하나로</h1>
+        <h1>엑셀과 모바일 캘린더를 하나로</h1>
         <p>Microsoft 계정으로 연결하면 본인의 OneDrive 파일만 안전하게 동기화됩니다.</p>
         <button id="loginBtn" class="primary">Microsoft 계정으로 시작</button>
         <small>일정은 GitHub에 저장되지 않습니다.</small>
@@ -46,6 +46,20 @@
     </div>
 
     <div id="accountPanel" class="sheet hidden" role="dialog" aria-modal="true"><div class="sheet-card"><div class="handle"></div><div class="sheet-head"><h2>계정 및 동기화</h2><button id="closeAccountBtn" class="close">×</button></div><div id="accountInfo" class="account-info"></div><div id="connectionStatus" class="status"></div><button id="panelSyncBtn" class="primary full">지금 동기화</button><button id="templateBtn" class="secondary full">엑셀 템플릿 다운로드</button><button id="logoutBtn" class="text-btn full">로그아웃</button></div></div>
+
+    <div id="helpPanel" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="sheet-card help-card"><div class="handle"></div><div class="sheet-head"><h2 id="helpTitle">Cellendar 사용 방법</h2><button id="closeHelpBtn" class="close" aria-label="닫기">×</button></div>
+        <ol class="help-list">
+          <li><strong>일정 보기</strong><span>날짜를 누르면 해당 날짜의 모든 일정을 볼 수 있습니다.</span></li>
+          <li><strong>일정 추가</strong><span>날짜 선택 → 일정 추가 → 내용을 입력한 뒤 저장하세요.</span></li>
+          <li><strong>수정·삭제</strong><span>날짜를 누른 뒤 일정 오른쪽의 수정 버튼을 선택하세요.</span></li>
+          <li><strong>Excel과 동기화</strong><span>오른쪽 위 ↻ 버튼을 누르면 OneDrive의 캘린더(자동).xlsx와 동기화됩니다.</span></li>
+          <li><strong>PC에서 입력</strong><span>Excel의 노란 입력표에서 날짜와 색상을 선택하고 제목을 작성한 뒤 저장하세요.</span></li>
+          <li><strong>연결 확인</strong><span>계정 버튼에서 마지막 동기화 시간과 연결 상태를 확인할 수 있습니다.</span></li>
+        </ol>
+        <div class="help-note">인터넷이 없을 때 앱에서 저장한 일정은 다음 연결 시 동기화됩니다.</div>
+      </div>
+    </div>
 
     <div id="toast" class="toast hidden"></div>
   </div>

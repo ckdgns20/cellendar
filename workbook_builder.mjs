@@ -116,6 +116,46 @@ for (const eventRow of [4, 6, 8, 10, 12, 14]) {
   monthSheet.getRange(`B${eventRow}:H${eventRow}`).format.verticalAlignment = "top";
 }
 
+// 달력 아래의 빈 공간에 사용자 안내를 배치합니다.
+monthSheet.getRange("B17:I17").merge();
+monthSheet.getRange("B17").values = [["Cellendar 사용 방법"]];
+monthSheet.getRange("B17:I17").format = {
+  fill: "#172033",
+  font: { bold: true, color: "#FFFFFF", size: 15 },
+  rowHeight: 30,
+  horizontalAlignment: "left",
+  verticalAlignment: "center",
+};
+const guideRows = [
+  ["1. 일정 입력", "오른쪽 노란 표에서 날짜와 색상을 목록으로 선택하고 제목을 입력하세요."],
+  ["2. 달력 표시", "같은 날짜의 일정은 달력 칸에 줄바꿈으로 최대 5개까지 표시됩니다."],
+  ["3. 다음 달", "상단의 연도와 월 숫자만 바꾸면 달력과 날짜 선택 목록이 함께 변경됩니다."],
+  ["4. 비고 사용", "초록색 비고 영역은 동기화와 관계없이 자유롭게 작성할 수 있습니다."],
+  ["5. 앱 동기화", "엑셀을 OneDrive의 Cellendar 폴더에 저장한 뒤 앱의 동기화 버튼을 누르세요."],
+  ["6. 수정·삭제", "휴대폰 앱에서 일정을 누르면 수정하거나 삭제할 수 있습니다."],
+  ["주의", "회색 ID·수정시간·삭제시간 칸과 내부 조회 영역은 수정하지 마세요."],
+];
+guideRows.forEach(([title, description], index) => {
+  const row = 18 + index;
+  monthSheet.getRange(`B${row}:C${row}`).merge();
+  monthSheet.getRange(`D${row}:I${row}`).merge();
+  monthSheet.getRange(`B${row}`).values = [[title]];
+  monthSheet.getRange(`D${row}`).values = [[description]];
+  monthSheet.getRange(`B${row}:C${row}`).format = {
+    fill: index === guideRows.length - 1 ? "#FFF0F0" : "#EAF2FF",
+    font: { bold: true, color: index === guideRows.length - 1 ? "#B33D3D" : "#315D8A" },
+    rowHeight: 27,
+    verticalAlignment: "center",
+  };
+  monthSheet.getRange(`D${row}:I${row}`).format = {
+    fill: index === guideRows.length - 1 ? "#FFF8F8" : "#F8FAFD",
+    font: { color: "#3D4A5C" },
+    rowHeight: 27,
+    verticalAlignment: "center",
+    wrapText: true,
+  };
+});
+
 await fs.mkdir(`${workDir}/final`, { recursive: true });
 await fs.mkdir(outputDir, { recursive: true });
 for (const name of ["공휴일", "26.8"]) {
