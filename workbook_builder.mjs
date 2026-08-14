@@ -70,6 +70,18 @@ monthSheet.getRange("S1:T32").format = { fill: "#F7F9FC", font: { color: "#98A2B
 monthSheet.getRange("S:S").format.columnWidth = 14;
 monthSheet.getRange("T:T").format.columnWidth = 11;
 
+// 같은 날짜의 여러 일정을 안정적으로 찾기 위한 내부 순번과 조회 키입니다.
+monthSheet.getRange("R4").values = [["내부 순번"]];
+monthSheet.getRange("U4").values = [["내부 조회 키"]];
+monthSheet.getRange("R5").formulas = [[`=IF(OR(J5="",Q5<>""),"",COUNTIF($J$5:J5,J5))`]];
+monthSheet.getRange("R5:R504").fillDown();
+monthSheet.getRange("U5").formulas = [[`=IF(OR(J5="",Q5<>""),"",J5&"|"&R5)`]];
+monthSheet.getRange("U5:U504").fillDown();
+monthSheet.getRange("R4:R504").format = { fill: "#F7F9FC", font: { color: "#C2C8D0", size: 8 } };
+monthSheet.getRange("U4:U504").format = { fill: "#F7F9FC", font: { color: "#C2C8D0", size: 8 } };
+monthSheet.getRange("R:R").format.columnWidth = 9;
+monthSheet.getRange("U:U").format.columnWidth = 14;
+
 monthSheet.getRange(`J${firstInputRow}:J${lastInputRow}`).dataValidation = {
   rule: { type: "list", formula1: "=$S$2:$S$32" },
 };
@@ -84,17 +96,35 @@ eventTable.showBandedRows = false;
 for (const memoRow of [4, 6, 8, 10, 12, 14]) {
   for (const col of ["B", "C", "D", "E", "F", "G", "H"]) {
     const dateCell = `${col}${memoRow - 1}`;
+    const eventAt = (position) =>
+      `XLOOKUP(${dateCell}&"|"&${position},$U$5:$U$504,$K$5:$K$504,"")`;
     monthSheet.getRange(`${col}${memoRow}`).formulas = [[
-      `=IFERROR(INDEX($K$5:$K$504,MATCH(1,INDEX(($J$5:$J$504=${dateCell})*($Q$5:$Q$504=""),0),0)),"")`,
+      `=${eventAt(1)}&IF(${eventAt(2)}="","",CHAR(10)&${eventAt(2)})&IF(${eventAt(3)}="","",CHAR(10)&${eventAt(3)})&IF(${eventAt(4)}="","",CHAR(10)&${eventAt(4)})&IF(${eventAt(5)}="","",CHAR(10)&${eventAt(5)})`,
     ]];
   }
 }
-monthSheet.getRange("B4:H14").format.wrapText = true;
+monthSheet.getRange("B:H").format.columnWidth = 24;
+monthSheet.getRange("B3:H14").format.wrapText = true;
+monthSheet.getRange("B3:H3").format.rowHeight = 22;
+monthSheet.getRange("B5:H5").format.rowHeight = 22;
+monthSheet.getRange("B7:H7").format.rowHeight = 22;
+monthSheet.getRange("B9:H9").format.rowHeight = 22;
+monthSheet.getRange("B11:H11").format.rowHeight = 22;
+monthSheet.getRange("B13:H13").format.rowHeight = 22;
+for (const eventRow of [4, 6, 8, 10, 12, 14]) {
+  monthSheet.getRange(`B${eventRow}:H${eventRow}`).format.rowHeight = 72;
+  monthSheet.getRange(`B${eventRow}:H${eventRow}`).format.verticalAlignment = "top";
+}
 
 await fs.mkdir(`${workDir}/final`, { recursive: true });
 await fs.mkdir(outputDir, { recursive: true });
 for (const name of ["공휴일", "26.8"]) {
-  const preview = await workbook.render({ sheetName: name, autoCrop: "all", scale: 1, format: "png" });
+  const preview = await workbook.render({
+    sheetName: name,
+    ...(name === "26.8" ? { range: "B1:Q34" } : { autoCrop: "all" }),
+    scale: 1,
+    format: "png",
+  });
   await fs.writeFile(`${workDir}/final/${name}.png`, new Uint8Array(await preview.arrayBuffer()));
 }
 
