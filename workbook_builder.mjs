@@ -7,6 +7,7 @@ const outputDir = "G:/project_calendar/outputs/cellendar";
 const workbook = await SpreadsheetFile.importXlsx(await FileBlob.load(sourcePath));
 
 const monthSheet = workbook.worksheets.getItem("26.8");
+monthSheet.name = "달력";
 const firstInputRow = 5;
 const lastInputRow = 34;
 
@@ -96,10 +97,11 @@ eventTable.showBandedRows = false;
 for (const memoRow of [4, 6, 8, 10, 12, 14]) {
   for (const col of ["B", "C", "D", "E", "F", "G", "H"]) {
     const dateCell = `${col}${memoRow - 1}`;
+    const holiday = `XLOOKUP(${dateCell},'공휴일'!$A$2:$A$306,'공휴일'!$B$2:$B$306,"")`;
     const eventAt = (position) =>
       `XLOOKUP(${dateCell}&"|"&${position},$U$5:$U$504,$K$5:$K$504,"")`;
     monthSheet.getRange(`${col}${memoRow}`).formulas = [[
-      `=${eventAt(1)}&IF(${eventAt(2)}="","",CHAR(10)&${eventAt(2)})&IF(${eventAt(3)}="","",CHAR(10)&${eventAt(3)})&IF(${eventAt(4)}="","",CHAR(10)&${eventAt(4)})&IF(${eventAt(5)}="","",CHAR(10)&${eventAt(5)})`,
+      `=IF(${holiday}="","","◆ "&${holiday})&IF(AND(${holiday}<>"",${eventAt(1)}<>""),CHAR(10),"")&${eventAt(1)}&IF(${eventAt(2)}="","",CHAR(10)&${eventAt(2)})&IF(${eventAt(3)}="","",CHAR(10)&${eventAt(3)})&IF(${eventAt(4)}="","",CHAR(10)&${eventAt(4)})&IF(${eventAt(5)}="","",CHAR(10)&${eventAt(5)})`,
     ]];
   }
 }
@@ -158,10 +160,10 @@ guideRows.forEach(([title, description], index) => {
 
 await fs.mkdir(`${workDir}/final`, { recursive: true });
 await fs.mkdir(outputDir, { recursive: true });
-for (const name of ["공휴일", "26.8"]) {
+for (const name of ["공휴일", "달력"]) {
   const preview = await workbook.render({
     sheetName: name,
-    ...(name === "26.8" ? { range: "B1:Q34" } : { autoCrop: "all" }),
+    ...(name === "달력" ? { range: "B1:Q34" } : { autoCrop: "all" }),
     scale: 1,
     format: "png",
   });
@@ -170,7 +172,7 @@ for (const name of ["공휴일", "26.8"]) {
 
 const check = await workbook.inspect({
   kind: "table",
-  sheetId: "26.8",
+  sheetId: "달력",
   range: "J4:T10",
   include: "values,formulas",
   tableMaxRows: 10,
