@@ -120,14 +120,16 @@ monthSheet.getRange("V:W").format.columnWidth = 4;
 
 for (const [weekIndex, dateRow] of [3, 5, 7, 9, 11, 13].entries()) {
   for (const [dayIndex, col] of ["B", "C", "D", "E", "F", "G", "H"].entries()) {
-    const helperRow = weekIndex * 7 + dayIndex + 2;
     const dateCell = monthSheet.getRange(`${col}${dateRow}`);
+    const helperIndex = `(ROW()-3)/2*7+COLUMN()-1`;
+    const holidayAtCell = `INDEX($W$2:$W$43,${helperIndex})`;
+    const dateAtCell = `INDEX($V$2:$V$43,${helperIndex})`;
     dateCell.formulas = [[
-      `=IF($W$${helperRow}<>"",$W$${helperRow}&REPT(" ",MAX(2,18-LEN($W$${helperRow})))&DAY($V$${helperRow}),REPT(" ",16-LEN(DAY($V$${helperRow})))&DAY($V$${helperRow}))`,
+      `=IF(${holidayAtCell}<>"",${holidayAtCell}&REPT(" ",MAX(2,18-LEN(${holidayAtCell})))&DAY(${dateAtCell}),REPT(" ",16-LEN(DAY(${dateAtCell})))&DAY(${dateAtCell}))`,
     ]];
     dateCell.format.horizontalAlignment = "left";
     dateCell.conditionalFormats.deleteAll();
-    dateCell.conditionalFormats.addCustom(`=$W$${helperRow}<>""`, { font: { color: "#E85858", bold: true } });
+    dateCell.conditionalFormats.addCustom(`=${holidayAtCell}<>""`, { font: { color: "#E85858", bold: true } });
   }
 }
 monthSheet.getRange("B:H").format.columnWidth = 24;
