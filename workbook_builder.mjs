@@ -43,7 +43,7 @@ for (const memoRow of [4, 6, 8, 10, 12, 14]) {
   for (const col of ["B", "C", "D", "E", "F", "G", "H"]) {
     const dateCell = `${col}${memoRow - 1}`;
     monthSheet.getRange(`${col}${memoRow}`).formulas = [[
-      `=IFERROR(TEXTJOIN(CHAR(10),TRUE,IF(($J$5:$J$504=${dateCell})*($Q$5:$Q$504=""),$K$5:$K$504,"")),"")`,
+      `=IFERROR(INDEX($K$5:$K$504,MATCH(1,INDEX(($J$5:$J$504=${dateCell})*($Q$5:$Q$504=""),0),0)),"")`,
     ]];
   }
 }
