@@ -45,7 +45,7 @@
       </form>
     </div>
 
-    <div id="accountPanel" class="sheet hidden" role="dialog" aria-modal="true"><div class="sheet-card"><div class="handle"></div><div class="sheet-head"><h2>계정 및 동기화</h2><button id="closeAccountBtn" class="close">×</button></div><div id="accountInfo" class="account-info"></div><div id="connectionStatus" class="status"></div><button id="panelSyncBtn" class="primary full">지금 동기화</button><button id="templateBtn" class="secondary full">엑셀 템플릿 다운로드</button><button id="logoutBtn" class="text-btn full">로그아웃</button></div></div>
+    <div id="accountPanel" class="sheet hidden" role="dialog" aria-modal="true"><div class="sheet-card"><div class="handle"></div><div class="sheet-head"><h2>계정 및 동기화</h2><button id="closeAccountBtn" class="close">×</button></div><div id="accountInfo" class="account-info"></div><div id="connectionStatus" class="status"></div><div id="notificationStatus" class="status"></div><button id="notificationBtn" class="secondary full">휴대폰 일정 알림 켜기</button><button id="panelSyncBtn" class="primary full">지금 동기화</button><button id="templateBtn" class="secondary full">엑셀 템플릿 다운로드</button><button id="logoutBtn" class="text-btn full">로그아웃</button></div></div>
 
     <div id="helpPanel" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
       <div class="sheet-card help-card"><div class="handle"></div><div class="sheet-head"><h2 id="helpTitle">Cellendar 사용 방법</h2><button id="closeHelpBtn" class="close" aria-label="닫기">×</button></div>
@@ -73,8 +73,9 @@
           <li><strong>Excel과 동기화</strong><span>오른쪽 위 ↻ 버튼을 누르면 OneDrive의 캘린더(자동).xlsx와 동기화됩니다.</span></li>
           <li><strong>PC에서 입력</strong><span>Excel의 노란 입력표에서 날짜와 색상을 선택하고 제목을 작성한 뒤 저장하세요.</span></li>
           <li><strong>연결 확인</strong><span>계정 버튼에서 마지막 동기화 시간과 연결 상태를 확인할 수 있습니다.</span></li>
+          <li><strong>휴대폰 알림</strong><span>계정 버튼 → 휴대폰 일정 알림 켜기를 누르고 알림을 허용하세요. Excel 또는 앱에서 지정한 알림시각에 시스템 알림이 표시됩니다.</span></li>
         </ol>
-        <div class="help-note">인터넷이 없을 때 앱에서 저장한 일정은 다음 연결 시 동기화됩니다.</div>
+        <div class="help-note">인터넷이 없을 때 앱에서 저장한 일정은 다음 연결 시 동기화됩니다. GitHub Pages 방식에서는 앱이 완전히 종료되면 정시 알림이 보장되지 않으므로, 중요한 일정에는 휴대폰 기본 캘린더 알림도 함께 사용하세요.</div>
       </div>
     </div>
 

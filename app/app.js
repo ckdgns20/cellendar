@@ -1,6 +1,7 @@
 const state = { date: new Date(), selected: null, events: [] };
 const $ = id => document.getElementById(id);
 let syncTimer;
+let notificationTimer;
 
 function key(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -17,6 +18,60 @@ function escapeText(s) {
 async function refresh() {
   state.events = (await allEvents()).filter(e => !e.deletedAt);
   render();
+  checkScheduledNotifications();
+}
+function notificationSupported() {
+  return 'Notification' in window && 'serviceWorker' in navigator;
+}
+function updateNotificationUI() {
+  const status = $('notificationStatus');
+  const button = $('notificationBtn');
+  if (!notificationSupported()) {
+    status.textContent = '이 브라우저에서는 일정 알림을 지원하지 않습니다.';
+    status.className = 'status error';
+    button.disabled = true;
+    return;
+  }
+  const permission = Notification.permission;
+  status.textContent = permission === 'granted' ? '휴대폰 일정 알림: 켜짐' : permission === 'denied' ? '휴대폰 설정에서 Cellendar 알림을 허용해야 합니다.' : '휴대폰 일정 알림: 꺼짐';
+  status.className = `status ${permission === 'granted' ? 'ok' : permission === 'denied' ? 'error' : ''}`;
+  button.textContent = permission === 'granted' ? '알림이 켜져 있습니다' : '휴대폰 일정 알림 켜기';
+  button.disabled = permission === 'granted';
+}
+async function enableNotifications() {
+  if (!notificationSupported()) return updateNotificationUI();
+  const permission = await Notification.requestPermission();
+  updateNotificationUI();
+  if (permission === 'granted') {
+    toast('일정 알림을 켰습니다.');
+    await showSystemNotification('Cellendar 알림 설정 완료', '일정의 알림시각이 되면 휴대폰에 알려드립니다.', 'notification-enabled');
+    checkScheduledNotifications();
+  }
+}
+async function showSystemNotification(title, body, tag) {
+  if (!notificationSupported() || Notification.permission !== 'granted') return;
+  const registration = await navigator.serviceWorker.ready;
+  registration.active?.postMessage({ type: 'SHOW_NOTIFICATION', title, body, tag });
+}
+async function checkScheduledNotifications() {
+  if (!notificationSupported() || Notification.permission !== 'granted') return;
+  const now = new Date();
+  const today = key(now);
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const notified = JSON.parse(localStorage.getItem('notifiedEvents') || '{}');
+  let changed = false;
+  for (const event of state.events) {
+    if (event.date !== today || !event.alarmTime) continue;
+    const [hour, minute] = event.alarmTime.split(':').map(Number);
+    const scheduledMinutes = hour * 60 + minute;
+    const notificationKey = `${event.id}|${event.date}|${event.alarmTime}|${event.updatedAt || ''}`;
+    if (currentMinutes >= scheduledMinutes && currentMinutes - scheduledMinutes <= 10 && !notified[notificationKey]) {
+      await showSystemNotification(event.title || 'Cellendar 일정', event.memo || `${event.alarmTime} 예정 일정입니다.`, `event-${event.id}`);
+      notified[notificationKey] = new Date().toISOString();
+      changed = true;
+    }
+  }
+  if (changed) localStorage.setItem('notifiedEvents', JSON.stringify(notified));
 }
 function render() {
   const y = state.date.getFullYear(), m = state.date.getMonth();
@@ -126,6 +181,7 @@ function bind() {
   $('syncBtn').onclick = () => doSync(true);
   $('panelSyncBtn').onclick = () => doSync(true);
   $('accountBtn').onclick = () => { updateAccountUI(); show('accountPanel'); };
+  $('notificationBtn').onclick = enableNotifications;
   $('closeAccountBtn').onclick = () => show('accountPanel', false);
   $('logoutBtn').onclick = async () => { await logout(); location.reload(); };
   $('templateBtn').onclick = () => { const a = document.createElement('a'); a.href = 'template/캘린더(자동).xlsx'; a.download = '캘린더(자동).xlsx'; a.click(); };
@@ -145,6 +201,8 @@ async function init() {
     toast(error.message);
   }
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  updateNotificationUI();
+  notificationTimer = setInterval(checkScheduledNotifications, 30000);
   syncTimer = setInterval(() => { if (document.visibilityState === 'visible') autoSync(); }, CFG.syncIntervalMs);
 }
 document.addEventListener('DOMContentLoaded', init);

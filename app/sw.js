@@ -1,4 +1,4 @@
-const CACHE = 'cellendar-v11';
+const CACHE = 'cellendar-v12';
 const ASSETS = [
   './', 'index.html', 'styles.css', 'config.js', 'storage.js', 'sync.js',
   'vendor/msal-browser.min.js',
@@ -41,4 +41,24 @@ self.addEventListener('fetch', event => {
       return response;
     }))
   );
+});
+
+self.addEventListener('message', event => {
+  if (event.data?.type !== 'SHOW_NOTIFICATION') return;
+  event.waitUntil(self.registration.showNotification(event.data.title || 'Cellendar', {
+    body: event.data.body || '',
+    icon: './icons/cellendar-icon.png',
+    badge: './icons/cellendar-icon.png',
+    tag: event.data.tag || 'cellendar-event',
+    renotify: true,
+    data: { url: './' },
+  }));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windows => {
+    const existing = windows[0];
+    return existing ? existing.focus() : clients.openWindow(event.notification.data?.url || './');
+  }));
 });
