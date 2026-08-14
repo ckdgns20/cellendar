@@ -64,7 +64,7 @@ async function checkScheduledNotifications() {
     if (event.date !== today || !event.alarmTime) continue;
     const [hour, minute] = event.alarmTime.split(':').map(Number);
     const scheduledMinutes = hour * 60 + minute;
-    const notificationKey = `${event.id}|${event.date}|${event.alarmTime}|${event.updatedAt || ''}`;
+    const notificationKey = `${event.id}|${event.date}|${event.alarmTime}`;
     if (currentMinutes >= scheduledMinutes && currentMinutes - scheduledMinutes <= 10 && !notified[notificationKey]) {
       await showSystemNotification(event.title || 'Cellendar 일정', event.memo || `${event.alarmTime} 예정 일정입니다.`, `event-${event.id}`);
       notified[notificationKey] = new Date().toISOString();
