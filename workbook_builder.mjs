@@ -76,7 +76,7 @@ monthSheet.getRange("R4").values = [["내부 순번"]];
 monthSheet.getRange("U4").values = [["내부 조회 키"]];
 monthSheet.getRange("R5").formulas = [[`=IF(OR(J5="",Q5<>""),"",COUNTIF($J$5:J5,J5))`]];
 monthSheet.getRange("R5:R504").fillDown();
-monthSheet.getRange("U5").formulas = [[`=IF(OR(J5="",Q5<>""),"",J5&"|"&R5)`]];
+monthSheet.getRange("U5").formulas = [[`=IF(OR(J5="",Q5<>""),"",J5*10+R5)`]];
 monthSheet.getRange("U5:U504").fillDown();
 monthSheet.getRange("R4:R504").format = { fill: "#F7F9FC", font: { color: "#C2C8D0", size: 8 } };
 monthSheet.getRange("U4:U504").format = { fill: "#F7F9FC", font: { color: "#C2C8D0", size: 8 } };
@@ -99,7 +99,7 @@ for (const memoRow of [4, 6, 8, 10, 12, 14]) {
     const dateIndex = ((memoRow - 4) / 2) * 7 + ["B", "C", "D", "E", "F", "G", "H"].indexOf(col);
     const helperDate = `$V$${dateIndex + 2}`;
     const eventAt = (position) =>
-      `XLOOKUP(${helperDate}&"|"&${position},$U$5:$U$504,$K$5:$K$504,"")`;
+      `IFERROR(INDEX($K$5:$K$504,MATCH(${helperDate}*10+${position},$U$5:$U$504,0)),"")`;
     monthSheet.getRange(`${col}${memoRow}`).formulas = [[
       `=${eventAt(1)}&IF(${eventAt(2)}="","",CHAR(10)&${eventAt(2)})&IF(${eventAt(3)}="","",CHAR(10)&${eventAt(3)})&IF(${eventAt(4)}="","",CHAR(10)&${eventAt(4)})&IF(${eventAt(5)}="","",CHAR(10)&${eventAt(5)})`,
     ]];
@@ -112,7 +112,7 @@ monthSheet.getRange("V2:V43").formulas = Array.from({ length: 42 }, (_, index) =
   `=DATE($G$1,$H$1,1)-WEEKDAY(DATE($G$1,$H$1,1),1)+1+${index}`,
 ]);
 monthSheet.getRange("W2:W43").formulas = Array.from({ length: 42 }, (_, index) => [
-  `=XLOOKUP(V${index + 2},'공휴일'!$A$2:$A$306,'공휴일'!$B$2:$B$306,"")`,
+  `=IFERROR(INDEX('공휴일'!$B$2:$B$306,MATCH(V${index + 2},'공휴일'!$A$2:$A$306,0)),"")`,
 ]);
 monthSheet.getRange("V2:V43").format.numberFormat = "yyyy-mm-dd";
 monthSheet.getRange("V1:W43").format = { fill: "#F7F9FC", font: { color: "#C2C8D0", size: 8 } };
