@@ -1,0 +1,6 @@
+const DB_NAME='CellendarDB',STORE='events';let db;
+function initStorage(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE,{keyPath:'id'})};r.onsuccess=e=>{db=e.target.result;resolve()};r.onerror=()=>reject(r.error)})}
+function allEvents(){return new Promise((resolve,reject)=>{const r=db.transaction(STORE).objectStore(STORE).getAll();r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+function putEvent(event){return new Promise((resolve,reject)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(event);r.onsuccess=()=>resolve(event);r.onerror=()=>reject(r.error)})}
+function removeEvent(id){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite'),s=tx.objectStore(STORE),g=s.get(id);g.onsuccess=()=>{const now=new Date().toISOString();s.put({...g.result,deletedAt:now,updatedAt:now})};tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
+function replaceEvents(events){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite'),s=tx.objectStore(STORE);s.clear();events.forEach(e=>s.put(e));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}

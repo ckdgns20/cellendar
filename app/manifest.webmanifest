@@ -1,0 +1,16 @@
+{
+  "name": "Cellendar",
+  "short_name": "Cellendar",
+  "description": "Excel과 연결되는 나만의 캘린더",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f4f7fb",
+  "theme_color": "#172033",
+  "lang": "ko",
+  "icons": [
+    { "src": "icons/cellendar-icon.png", "sizes": "1254x1254", "type": "image/png", "purpose": "any" },
+    { "src": "icons/cellendar-icon.png", "sizes": "1254x1254", "type": "image/png", "purpose": "maskable" }
+  ]
+}
