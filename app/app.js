@@ -1,4 +1,4 @@
-const state = { date: new Date(), selected: null, events: [] };
+const state = { date: new Date(), selected: null, events: [], holidays: {} };
 const $ = id => document.getElementById(id);
 let syncTimer;
 let notificationTimer;
@@ -17,6 +17,7 @@ function escapeText(s) {
 }
 async function refresh() {
   state.events = (await allEvents()).filter(e => !e.deletedAt);
+  state.holidays = JSON.parse(localStorage.getItem('holidays') || '{}');
   render();
   checkScheduledNotifications();
 }
@@ -85,9 +86,10 @@ function render() {
     d.setDate(start.getDate() + i);
     const dk = key(d);
     const events = state.events.filter(e => e.date === dk);
+    const holiday = state.holidays[dk] || '';
     const cell = document.createElement('button');
-    cell.className = `day ${d.getMonth() !== m ? 'other ' : ''}${d.getDay() === 0 ? 'sun ' : d.getDay() === 6 ? 'sat ' : ''}${dk === today ? 'today' : ''}`;
-    cell.innerHTML = `<div class="num">${d.getDate()}</div>${events.slice(0, 2).map(e => `<div class="chip" style="background:${e.color}">${escapeText(e.title)}</div>`).join('')}${events.length > 2 ? `<div class="more">+${events.length - 2}</div>` : ''}`;
+    cell.className = `day ${d.getMonth() !== m ? 'other ' : ''}${d.getDay() === 0 ? 'sun ' : d.getDay() === 6 ? 'sat ' : ''}${holiday ? 'holiday ' : ''}${dk === today ? 'today' : ''}`;
+    cell.innerHTML = `<div class="day-head"><div class="num">${d.getDate()}</div>${holiday ? `<div class="holiday-name">${escapeText(holiday)}</div>` : ''}</div>${events.slice(0, 2).map(e => `<div class="chip" style="background:${e.color}">${escapeText(e.title)}</div>`).join('')}${events.length > 2 ? `<div class="more">+${events.length - 2}</div>` : ''}`;
     cell.onclick = () => openDay(d);
     $('calendarGrid').appendChild(cell);
   }
