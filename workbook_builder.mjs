@@ -96,13 +96,38 @@ eventTable.showBandedRows = false;
 
 for (const memoRow of [4, 6, 8, 10, 12, 14]) {
   for (const col of ["B", "C", "D", "E", "F", "G", "H"]) {
-    const dateCell = `${col}${memoRow - 1}`;
-    const holiday = `XLOOKUP(${dateCell},'공휴일'!$A$2:$A$306,'공휴일'!$B$2:$B$306,"")`;
+    const dateIndex = ((memoRow - 4) / 2) * 7 + ["B", "C", "D", "E", "F", "G", "H"].indexOf(col);
+    const helperDate = `$V$${dateIndex + 2}`;
     const eventAt = (position) =>
-      `XLOOKUP(${dateCell}&"|"&${position},$U$5:$U$504,$K$5:$K$504,"")`;
+      `XLOOKUP(${helperDate}&"|"&${position},$U$5:$U$504,$K$5:$K$504,"")`;
     monthSheet.getRange(`${col}${memoRow}`).formulas = [[
-      `=IF(${holiday}="","","◆ "&${holiday})&IF(AND(${holiday}<>"",${eventAt(1)}<>""),CHAR(10),"")&${eventAt(1)}&IF(${eventAt(2)}="","",CHAR(10)&${eventAt(2)})&IF(${eventAt(3)}="","",CHAR(10)&${eventAt(3)})&IF(${eventAt(4)}="","",CHAR(10)&${eventAt(4)})&IF(${eventAt(5)}="","",CHAR(10)&${eventAt(5)})`,
+      `=${eventAt(1)}&IF(${eventAt(2)}="","",CHAR(10)&${eventAt(2)})&IF(${eventAt(3)}="","",CHAR(10)&${eventAt(3)})&IF(${eventAt(4)}="","",CHAR(10)&${eventAt(4)})&IF(${eventAt(5)}="","",CHAR(10)&${eventAt(5)})`,
     ]];
+  }
+}
+
+// 실제 날짜와 공휴일명은 보조 영역에 두고, 달력 날짜 칸에는 "공휴일명    일자"로 표시합니다.
+monthSheet.getRange("V1:W1").values = [["달력 실제 날짜", "공휴일명"]];
+monthSheet.getRange("V2:V43").formulas = Array.from({ length: 42 }, (_, index) => [
+  `=DATE($G$1,$H$1,1)-WEEKDAY(DATE($G$1,$H$1,1),1)+1+${index}`,
+]);
+monthSheet.getRange("W2:W43").formulas = Array.from({ length: 42 }, (_, index) => [
+  `=XLOOKUP(V${index + 2},'공휴일'!$A$2:$A$306,'공휴일'!$B$2:$B$306,"")`,
+]);
+monthSheet.getRange("V2:V43").format.numberFormat = "yyyy-mm-dd";
+monthSheet.getRange("V1:W43").format = { fill: "#F7F9FC", font: { color: "#C2C8D0", size: 8 } };
+monthSheet.getRange("V:W").format.columnWidth = 4;
+
+for (const [weekIndex, dateRow] of [3, 5, 7, 9, 11, 13].entries()) {
+  for (const [dayIndex, col] of ["B", "C", "D", "E", "F", "G", "H"].entries()) {
+    const helperRow = weekIndex * 7 + dayIndex + 2;
+    const dateCell = monthSheet.getRange(`${col}${dateRow}`);
+    dateCell.formulas = [[
+      `=IF($W$${helperRow}<>"",$W$${helperRow}&REPT(" ",MAX(2,18-LEN($W$${helperRow})))&DAY($V$${helperRow}),REPT(" ",16-LEN(DAY($V$${helperRow})))&DAY($V$${helperRow}))`,
+    ]];
+    dateCell.format.horizontalAlignment = "left";
+    dateCell.conditionalFormats.deleteAll();
+    dateCell.conditionalFormats.addCustom(`=$W$${helperRow}<>""`, { font: { color: "#E85858", bold: true } });
   }
 }
 monthSheet.getRange("B:H").format.columnWidth = 24;
@@ -131,6 +156,7 @@ monthSheet.getRange("B17:I17").format = {
 const guideRows = [
   ["1. 일정 입력", "오른쪽 노란 표에서 날짜와 색상을 목록으로 선택하고 제목을 입력하세요."],
   ["2. 달력 표시", "같은 날짜의 일정은 달력 칸에 줄바꿈으로 최대 5개까지 표시됩니다."],
+  ["공휴일", "공휴일 시트의 휴일명은 날짜 숫자 왼쪽에 표시되고 날짜와 함께 빨간색으로 표시됩니다."],
   ["3. 다음 달", "상단의 연도와 월 숫자만 바꾸면 달력과 날짜 선택 목록이 함께 변경됩니다."],
   ["4. 비고 사용", "초록색 비고 영역은 동기화와 관계없이 자유롭게 작성할 수 있습니다."],
   ["5. 앱 동기화", "엑셀을 OneDrive의 Cellendar 폴더에 저장한 뒤 앱의 동기화 버튼을 누르세요."],
