@@ -1,5 +1,5 @@
 ﻿const CFG=window.CELLENDAR_CONFIG,SCOPES=['User.Read','Files.ReadWrite'];let authApp=null,syncing=false;
-async function initAuth(){if(CFG.clientId.startsWith('YOUR_'))return null;if(authApp)return authApp;authApp=new msal.PublicClientApplication({auth:{clientId:CFG.clientId,authority:`https://login.microsoftonline.com/${CFG.tenantId}`,redirectUri:location.origin+location.pathname},cache:{cacheLocation:'localStorage'}});if(authApp.initialize)await authApp.initialize();return authApp}
+async function initAuth(){if(CFG.clientId.startsWith('YOUR_'))return null;if(authApp)return authApp;if(typeof msal==='undefined')throw new Error('Microsoft 로그인 모듈을 불러오지 못했습니다.');authApp=new msal.PublicClientApplication({auth:{clientId:CFG.clientId,authority:`https://login.microsoftonline.com/${CFG.tenantId}`,redirectUri:location.origin+location.pathname},cache:{cacheLocation:'localStorage'}});if(authApp.initialize)await authApp.initialize();return authApp}
 async function account(){const a=await initAuth();return a?.getAllAccounts()?.[0]||null}
 async function login(){const a=await initAuth();if(!a)throw new Error('관리자가 Microsoft 클라이언트 ID를 아직 설정하지 않았습니다.');return (await a.loginPopup({scopes:SCOPES,prompt:'select_account'})).account}
 async function logout(){const a=await initAuth(),u=await account();if(u)await a.logoutPopup({account:u,postLogoutRedirectUri:location.href})}

@@ -1,6 +1,7 @@
-const CACHE = 'cellendar-v4';
+const CACHE = 'cellendar-v5';
 const ASSETS = [
   './', 'index.html', 'styles.css', 'config.js', 'storage.js', 'sync.js',
+  'vendor/msal-browser.min.js',
   'app.js', 'manifest.webmanifest', 'icons/cellendar-icon.png'
 ];
 
